@@ -2,74 +2,37 @@
   background-color: #141414;
 }
 
-.hero-card {
+.stat-card {
   background-color: #2b2b2b;
   border-radius: 15px;
-  height: 240px; /* Increased to fit content comfortably */
+  height: 5rem;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  margin: 0px !important; /* Force zero margins to control alignment */
   border: 1px solid #444;
   transition: all 0.4s ease-in-out;
 }
 
-.hero-card:hover {
-  transform: translateY(-10px);
+.stat-card:hover {
+  transform: translateY(-5px);
   border-color: #e50914;
 }
 
-.hero-label {
-  font-size: 20px;
+.card-label {
+  font-size: 0.8rem;
   color: #999;
   text-transform: uppercase;
-  letter-spacing: 3px;
-  margin-bottom: 10px;
+  letter-spacing: 2px;
+  margin-bottom: 3px;
+  margin-top: 8px;
   font-weight: 600;
 }
 
-.hero-value {
-  font-size: 70px;
-  font-weight: 900;
-  margin: 0;
-  line-height: 1;
-}
-
-.side-card {
-  background-color: #2b2b2b;
-  border-radius: 15px;
-  height: 110px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  margin: 0px !important;
-  border: 1px solid #444;
-  transition: all 0.4s ease-in-out;
-}
-
-.side-card:first-child {
-  margin-bottom: 20px !important;
-}
-
-.side-value {
+.card-value {
   font-size: 45px;
   font-weight: 900;
   margin: 0;
   line-height: 1;
-}
-
-.side-label {
-  color: #999;
-  text-transform: uppercase;
-  letter-spacing: 3px;
-  margin-bottom: 10px;
-  font-weight: 600;
-  font-size: 14px;
-}
-
-.side-card:hover {
-  transform: translateY(-10px);
-  border-color: #e50914;
+  color: white;
 }

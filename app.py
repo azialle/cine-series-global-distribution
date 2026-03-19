@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from components import total_title_card, total_movie_card, total_tv_show_card, total_reach_card, total_years_card
+from components import total_title_card, total_movie_card, total_tv_show_card, total_reach_card
 
 st.set_page_config(page_title="Netflix Dashboard", layout="wide")
 
@@ -25,13 +25,13 @@ min_year = df['release_year'].min()
 max_year = df['release_year'].max()
 
 
-col1, col2, col3 = st.columns([1, 1, 1], gap='small') 
+col1, col2, col3, col4 = st.columns(4, gap='small') 
 
 with col1:
     st.markdown(total_title_card(total_val), unsafe_allow_html=True)
 with col2:
-    side_col2 = f"{total_movie_card(total_movies)}{total_tv_show_card(total_tv_shows)}"
-    st.markdown(side_col2, unsafe_allow_html=True)
+    st.markdown(total_movie_card(total_movies), unsafe_allow_html=True)
 with col3:
-    side_col3 = f"{total_reach_card(total_countries)}{total_years_card(min_year, max_year)}"
-    st.markdown(side_col3, unsafe_allow_html=True)
+    st.markdown(total_tv_show_card(total_tv_shows), unsafe_allow_html=True)
+with col4:
+    st.markdown(total_reach_card(total_countries), unsafe_allow_html=True)
