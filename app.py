@@ -1,5 +1,7 @@
 import streamlit as st
 import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
 from components import total_title_card, total_movie_card, total_tv_show_card, total_reach_card
 
 st.set_page_config(page_title="Netflix Dashboard", layout="wide")
@@ -35,3 +37,19 @@ with col3:
     st.markdown(total_tv_show_card(total_tv_shows), unsafe_allow_html=True)
 with col4:
     st.markdown(total_reach_card(total_countries), unsafe_allow_html=True)
+
+st.markdown("<br>", unsafe_allow_html=True)
+chart_col1, chart_col2 = st.columns(2)
+
+with chart_col1:
+    st.subheader("Content Added Per Year")
+    added_counts = df.groupby(['year_added', 'type']).size().reset_index(name='count')
+    
+    fig1, ax1 = plt.subplots(figsize=(10, 6))
+    sns.barplot(data=added_counts, x='year_added', y='count', hue='type',  ax=ax1)
+    ax1.set_xlabel("Year Added")
+    ax1.set_ylabel("Count")
+    ax1.legend(title="Type")
+    fig1.patch.set_alpha(0)
+    ax1.set_facecolor((0,0,0,0))
+    st.pyplot(fig1)
