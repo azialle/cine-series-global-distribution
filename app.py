@@ -2,7 +2,6 @@ import streamlit as st
 from utils.data_loader import load_data
 from utils.charts import year_added_chart, genre_chart, rating_chart, map_chart
 from components.cards import total_title_card, total_movie_card, total_tv_show_card, total_reach_card
-
 st.set_page_config(page_title="Netflix Dashboard", layout="wide")
 
 with open("style.css") as file:
@@ -10,7 +9,40 @@ with open("style.css") as file:
 
 df = load_data()
 
-st.title("Netflix Data Dashboard")
+min_date = df["date_added"].min().date()
+max_date = df["date_added"].max().date()
+
+def reset_all_filters():
+    st.session_state.date_range_input = (min_date, max_date)
+    st.session_state.show_type_key = "All"
+
+st.sidebar.header("Netflix Dashboard Filters")
+st.sidebar.button("Reset All Filters", on_click=reset_all_filters, width="content")
+
+date_range_filter = st.sidebar.date_input(
+    "Select Date Range",
+    min_value=min_date,
+    max_value=max_date,
+    width="stretch",
+    key="date_range_input" 
+)
+
+if isinstance(date_range_filter, tuple) and len(date_range_filter) == 2:
+    start_date, end_date = date_range_filter
+    df = df[
+        (df["date_added"].dt.date >= start_date) & 
+        (df["date_added"].dt.date <= end_date)
+    ]
+    
+show_type_filter = st.sidebar.segmented_control("Show Type", 
+                                                options=("All", "TV Show", "Movie"), 
+                                                width="stretch",
+                                                key="show_type_key")
+if show_type_filter != "All":
+    df = df[df["type"] == show_type_filter]
+
+if df.empty:
+    st.warning("**No data available!** Please adjust your filters in the sidebar.")
 
 total_val = len(df)
 total_movies = len(df[df["type"] == "Movie"])
@@ -35,8 +67,11 @@ chart_col1, chart_col2, chart_col3 = st.columns([2, 1, 1])
 with chart_col1:
     with st.container(border=True):
         st.subheader("Content Added Per Year", text_alignment="center")
-        st.plotly_chart(year_added_chart(df), width="stretch")
-
+        fig_year = year_added_chart(df)
+        if fig_year is None:
+            st.error("No data found for the selected filters.")
+        else:
+            st.plotly_chart(year_added_chart(df), width="stretch")
 with chart_col2:
     with st.container(border=True):
         st.subheader("Top 10 Genres", text_alignment="center")
