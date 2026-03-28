@@ -1,7 +1,24 @@
 import plotly.express as px
 
 def year_added_chart(df):
-    content_metrics = df.groupby(["year_added", "type"]).size().reset_index(name="count")
+    content_metrics = (df.groupby([df["date_added"].dt.year.rename("year_added"), "type"])
+                       .size()
+                       .reset_index(name="count"))
+    
+    content_metrics = content_metrics.dropna(subset=["year_added"])
+
+    if df.empty:
+        fig = px.bar()
+        fig.update_layout(
+            template="plotly_dark",
+            paper_bgcolor="rgba(0,0,0,0)",
+            plot_bgcolor="rgba(0,0,0,0)",
+            xaxis={"visible": False},
+            yaxis={"visible": False},
+            annotations=[{"text": "No Data", "showarrow": False, "font": {"size": 20}}]
+        )
+        return fig
+    
     fig1 = px.bar(
         data_frame=content_metrics,
         x="year_added", 
@@ -12,8 +29,8 @@ def year_added_chart(df):
         template="plotly_dark",
     )
 
-    min_yr = content_metrics["year_added"].min()
-    max_yr = content_metrics["year_added"].max()
+    min_yr = int(content_metrics["year_added"].min())
+    max_yr = int(content_metrics["year_added"].max())
 
     fig1.update_layout(
         xaxis_title="",
