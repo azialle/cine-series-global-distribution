@@ -125,13 +125,13 @@ def rating_chart(df):
     return fig3
 
 def map_chart(df):
-    country_counts = df.groupby(["ISO", "country"]).size().reset_index(name="count")
+    country_counts = df.groupby("ISO").size().reset_index(name="count")
+    print(country_counts)
     fig_map = px.choropleth(
         data_frame=country_counts,
-        locations="ISO",        
-        locationmode="ISO-3",   
+        locations="ISO",         
+        locationmode="ISO-3",    
         color="count",
-        hover_name="country",  
         color_continuous_scale="Reds",
         template="plotly_dark",
     )
