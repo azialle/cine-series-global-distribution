@@ -1,32 +1,51 @@
-.stat-card {
-  border-radius: 0.9rem;
-  height: 5rem;
+[data-testid="stMetric"] {
+  text-align: center;
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
-  border: 1px solid #444;
-  transition: all 0.4s ease-in-out;
+  justify-content: center;
 }
 
-.stat-card:hover {
-  transform: translateY(-5px);
-  border-color: #e50914;
-}
-
-.card-label {
-  font-size: 0.8rem;
-  color: #999;
+[data-testid="stMetricLabel"] {
+  width: 100%;
+  display: flex;
+  justify-content: center;
   text-transform: uppercase;
+  color: #999;
+  font-size: 0.8rem;
   letter-spacing: 0.1rem;
   margin-bottom: 0.1rem;
   margin-top: 0.3rem;
   font-weight: 600;
 }
 
-.card-value {
+[data-testid="stMetricValue"] {
+  width: 100%;
+  display: flex;
+  justify-content: center;
   font-size: 2rem;
   font-weight: 900;
   line-height: 1;
-  color: white;
+}
+
+[data-testid="stMetricDelta"] {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+[data-testid="stMetricDelta"] svg {
+  display: none !important;
+}
+
+/* 2. Target the specific Icon testid just in case */
+[data-testid="stMetricDeltaIcon"] {
+  display: none !important;
+}
+
+/* 3. Remove the margin left over from the hidden icon to keep text centered */
+[data-testid="stMetricDelta"] > div {
+  margin-left: 0 !important;
+  display: flex;
+  justify-content: center;
 }
