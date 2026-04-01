@@ -1,7 +1,6 @@
 import streamlit as st
 from utils.data_loader import load_data
-from utils.charts import year_added_chart, genre_chart, rating_chart, map_chart
-from components.cards import total_title_card, total_movie_card, total_tv_show_card, total_reach_card
+from utils.charts import content_added_chart, genre_chart, rating_chart, map_chart
 
 st.set_page_config(page_title="Netflix Dashboard", layout="wide")
 
@@ -50,7 +49,8 @@ show_type_filter = st.sidebar.segmented_control(
 if show_type_filter != "All":
     df = df[df["type"] == show_type_filter]
 
-country_options = sorted([country for country in df["country"].unique() if country != "Unknown"])
+all_countries = df["country"].str.split(",").explode().str.strip(", ")
+country_options = sorted([country for country in all_countries.unique() if country and country != "Unknown"])
 countries_filter = st.sidebar.multiselect(
     "Select Countries", 
     options=country_options,
@@ -58,7 +58,9 @@ countries_filter = st.sidebar.multiselect(
     key="country_filter"
 )
 if countries_filter:
-    df = df[df["country"].isin(countries_filter)]
+    countries_expanded = df["country"].str.split(",").explode().str.strip(", ")
+    country_matches = countries_expanded[countries_expanded.isin(countries_filter)].index.unique()
+    df = df.loc[country_matches]
 
 all_genres = df["genre"].str.split(",").explode().str.strip().unique()
 genre_options = sorted([genre for genre in all_genres if genre != "Unknown" and str(genre).strip() != ""])
@@ -69,7 +71,9 @@ genres_filter = st.sidebar.multiselect(
     key="genre_filter"
 )
 if genres_filter:
-    df = df[df["genre"].isin(genres_filter)]
+    genres_expanded = df["genre"].str.split(",").explode().str.strip()
+    genre_matches = genres_expanded[genres_expanded.isin(genres_filter)].index.unique()
+    df = df.loc[genre_matches]
 
 rating_options = sorted([rating for rating in df["rating"].unique() if rating != "Unknown"])
 ratings_filter = st.sidebar.multiselect(
@@ -84,36 +88,78 @@ if ratings_filter:
 st.sidebar.button("Reset All Filters", on_click=reset_all_filters, width="content")
 
 if df.empty:
-    st.warning("**No data available!** Please adjust your filters in the sidebar.")
+    st.warning("**No data available!** Please adjust your filters.")
 
 total_val = len(df)
-total_movies = len(df[df["type"] == "Movie"])
-total_tv_shows = len(df[df["type"] == "TV Show"])
-total_countries = df["country"].nunique()
+
+movie_df = df[df["type"] == "Movie"]
+total_movies = len(movie_df)
+avg_movie_duration = movie_df["duration"].str.replace(" min", "").astype(int).mean()
+
+tv_df = df[df["type"] == "TV Show"]
+total_tv_shows = len(tv_df)
+avg_tv_seasons = tv_df["duration"].str.replace(" Season", "").str.replace("s", "").astype(int).mean()
+
+total_countries = df["ISO"].str.split(", ").explode().nunique()
 
 card_col1, card_col2, card_col3, card_col4 = st.columns(4) 
 
 with card_col1:
-    st.markdown(total_title_card(total_val), unsafe_allow_html=True)
+    st.metric(
+        label="Total Titles", 
+        value=f"{total_val:,}", 
+        border=True,
+         height=120
+    )
 with card_col2:
-    st.markdown(total_movie_card(total_movies), unsafe_allow_html=True)
+    st.metric(
+        label="Total Movies", 
+        value=f"{total_movies:,}", 
+        delta=f"Avg. Duration: {avg_movie_duration:.1f} mins" if total_movies > 0 else "—",
+        delta_color="off",
+        border=True,
+         height=120
+    )
 with card_col3:
-    st.markdown(total_tv_show_card(total_tv_shows), unsafe_allow_html=True)
+    st.metric(
+        label="Total TV Shows", 
+        value=f"{total_tv_shows:,}", 
+        delta=f"Avg. Duration: {avg_tv_seasons:.1f} Seasons" if total_tv_shows > 0 else "—",
+        delta_color="off",
+        border=True,
+        height=120
+    )
 with card_col4:
-    st.markdown(total_reach_card(total_countries), unsafe_allow_html=True)
+    st.metric(
+        label="Total Countries Reach", 
+        value=total_countries,
+        border=True,
+         height=120
+    )
 
-st.markdown("<br>", unsafe_allow_html=True)
 
 chart_col1, chart_col2, chart_col3 = st.columns([2, 1, 1])
 
+if "selected_year" not in st.session_state:
+    st.session_state.selected_year = None
+
 with chart_col1:
     with st.container(border=True):
-        st.subheader("Content Added Per Year", text_alignment="center")
-        fig_year = year_added_chart(df)
-        if fig_year is None:
-            st.error("No data found for the selected filters.")
-        else:
-            st.plotly_chart(fig_year, width="stretch")
+        if st.session_state.selected_year:
+            if st.button("⬅ Back", width="content"):
+                st.session_state.selected_year = None
+                st.rerun()
+
+        st.subheader("Content Added Over Time", text_alignment="center")
+    
+        fig_year = content_added_chart(df, selected_year=st.session_state.selected_year)
+        select_event = st.plotly_chart(fig_year, on_select="rerun", key="main_chart")
+
+        if select_event and select_event["selection"]["points"]:
+            new_year = select_event["selection"]["points"][0]["x"]
+            if not st.session_state.selected_year:
+                st.session_state.selected_year = new_year
+                st.rerun()
 with chart_col2:
     with st.container(border=True):
         st.subheader("Top 10 Genres", text_alignment="center")
@@ -122,8 +168,6 @@ with chart_col3:
     with st.container(border=True):
         st.subheader("Rating Distribution", text_alignment="center")
         st.plotly_chart(rating_chart(df), width="stretch")
-
-st.markdown("<br>", unsafe_allow_html=True)
 
 map_col, table_col = st.columns(2)
 
@@ -138,11 +182,12 @@ with table_col:
         st.subheader("Latest Titles", text_alignment="center")
         st.dataframe(
             df.sort_values("release_year", ascending=False),
-            column_order=("title", "type", "release_year",  "genre", "rating", "duration"),
+            column_order=("title", "type", "release_year",  "country", "genre", "rating", "duration"),
             column_config={
                 "title": "Title",
                 "type": "Type",
                 "release_year": st.column_config.NumberColumn("Year", format="%d"),
+                "country": "Country",
                 "genre": "Genre",
                 "rating": "Rating",
                 "duration": "Duration"
