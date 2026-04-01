@@ -1,61 +1,53 @@
 import plotly.express as px
 
-def year_added_chart(df):
-    content_metrics = (df.groupby([df["date_added"].dt.year.rename("year_added"), "type"])
-                       .size()
-                       .reset_index(name="count"))
-    
-    content_metrics = content_metrics.dropna(subset=["year_added"])
+def content_added_chart(df, selected_year=None):
+    if selected_year:
+        df_filtered = df[df["date_added"].dt.year == int(selected_year)].copy()
+        df_filtered["month"] = df_filtered["date_added"].dt.month_name()
+        content_metrics = (df_filtered.groupby(["month", "type"])
+                          .size()
+                          .reset_index(name="count"))
+        
+        x_axis = "month"
+        category_orders = {"month": ["January", "February", "March", "April", "May", "June", 
+                                     "July", "August", "September", "October", "November", "December"]}
+        title = f"Titles Added in {selected_year} (Monthly)"
+    else:
+        content_metrics = (df.groupby([df["date_added"].dt.year.rename("year_added"), "type"])
+                          .size()
+                          .reset_index(name="count"))
+        content_metrics = content_metrics.dropna(subset=["year_added"])
+        
+        x_axis = "year_added"
+        category_orders = {}
+        title = ""
 
-    if df.empty:
-        fig = px.bar()
-        fig.update_layout(
-            template="plotly_dark",
-            paper_bgcolor="rgba(0,0,0,0)",
-            plot_bgcolor="rgba(0,0,0,0)",
-            xaxis={"visible": False},
-            yaxis={"visible": False},
-            annotations=[{"text": "No Data", "showarrow": False, "font": {"size": 20}}]
-        )
-        return fig
-    
-    fig1 = px.bar(
-        data_frame=content_metrics,
-        x="year_added", 
-        y="count", 
+    fig = px.bar(
+        content_metrics,
+        x=x_axis,
+        y="count",
         color="type",
         barmode="group",
+        category_orders=category_orders,
         color_discrete_sequence=[px.colors.sequential.Reds_r[0], px.colors.sequential.Reds_r[5]],
         template="plotly_dark",
     )
 
-    min_yr = int(content_metrics["year_added"].min())
-    max_yr = int(content_metrics["year_added"].max())
-
-    fig1.update_layout(
-        xaxis_title="",
+    fig.update_layout(
+        xaxis_title=title,
         yaxis_title="Total Titles",
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)",
         margin={"l": 0, "r": 0, "t": 30, "b": 0},
         height=300,
-        legend={
-            "orientation": "h", 
-            "yanchor": "bottom", 
-            "y": 1.02, 
-            "xanchor": "right", 
-            "x": 1, 
-            "title_text": "",
-        },
-        xaxis={
-            "tickmode": "linear", 
-            "tick0": min_yr, 
-            "dtick": 1, 
-            "range": [min_yr - 0.5, max_yr + 0.5],
-        },
+        legend={"orientation": "h", "yanchor": "bottom", "y": 1.02, "xanchor": "right", "x": 1, "title_text": ""},
     )
+    
+    if not selected_year and not content_metrics.empty:
+        min_yr, max_yr = int(content_metrics["year_added"].min()), int(content_metrics["year_added"].max())
+        fig.update_layout(xaxis={"tickmode": "linear", "dtick": 1, "range": [min_yr - 0.5, max_yr + 0.5]})
 
-    return fig1
+    return fig
 
 def genre_chart(df):
     top_genres = df["genre"].str.split(", ").explode().value_counts().head(10).reset_index()
@@ -126,7 +118,6 @@ def rating_chart(df):
 
 def map_chart(df):
     country_counts = df.groupby("ISO").size().reset_index(name="count")
-    print(country_counts)
     fig_map = px.choropleth(
         data_frame=country_counts,
         locations="ISO",         
