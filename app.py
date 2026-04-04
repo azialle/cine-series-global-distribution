@@ -3,6 +3,7 @@ from utils.data_loader import load_data
 from utils.filters import Filters
 from utils.metrics import Metrics
 from utils.charts import Charts
+from utils.footer import footer
 from styles.page_config import page_config
 
 
@@ -31,3 +32,5 @@ with map_col:
 
 with table_col:
     charts.table_display()
+
+footer()
