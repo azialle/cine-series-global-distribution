@@ -5,7 +5,7 @@ class Charts(Figures):
     def __init__(self, df):
         super().__init__(df)
 
-    def _render_chart(self, title, figure_method, interactive=False):
+    def _render_chart(self, title, figure_method):
         with st.container(border=True):
             st.subheader(title, text_alignment="center")
             
@@ -13,13 +13,12 @@ class Charts(Figures):
             
             st.plotly_chart(
                 figure, 
-                on_select="rerun" if interactive else "ignore", 
                 key=f"key_{figure_method}", 
-                use_container_width=True
+                width="stretch"
             )
 
     def content_added_chart(self):
-        self._render_chart("Content Added Over Time", "content_added_figure", interactive=True)
+        self._render_chart("Content Added Over Time", "content_added_figure")
 
     def top_genre_chart(self):
         self._render_chart("Top 10 Genres", "genre_figure")
@@ -39,5 +38,5 @@ class Charts(Figures):
                 column_config={"release_year": st.column_config.NumberColumn("Year", format="%d")},
                 hide_index=True,
                 height=300,
-                use_container_width=True
+                width="stretch"
             )
