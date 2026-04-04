@@ -24,7 +24,7 @@ class Metrics:
             {"label": "Movies", "value": f"{movies:,}", 
             "delta": f"Avg. Duration: {average_movie_duration:.1f} mins" if movies > 0 else "—"},
             {"label": "TV Shows", "value": f"{tv_shows:,}", 
-            "delta": f"Avg. Duration: {average_tv_seasons:.1f} Seasons" if tv_shows > 0 else "—"},
+            "delta": f"Avg. Duration: {average_tv_seasons:.1f} seasons" if tv_shows > 0 else "—"},
             {"label": "Countries Reach", "value": countries, "delta": None},
         ]
 
