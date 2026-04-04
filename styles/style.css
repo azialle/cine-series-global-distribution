@@ -1,0 +1,96 @@
+.block-container {
+  padding-top: 4rem;
+  padding-bottom: 0rem;
+  padding-left: 5rem;
+  padding-right: 5rem;
+}
+
+header[data-testid="stHeader"] {
+  background-color: #0e1117;
+  border-bottom: 1px solid rgba(250, 250, 250, 0.1);
+  display: flex;
+  align-items: center;
+  z-index: 999999;
+}
+
+header[data-testid="stHeader"]::before {
+  content: "🎬 Cine-Series: Global Distribution";
+  padding-left: 60px;
+  font-size: 24px;
+  font-weight: bold;
+  color: #e50914;
+  display: flex;
+  align-items: center;
+  height: 100%;
+  white-space: nowrap;
+  width: auto;
+}
+
+[data-testid="stSidebarContent"] {
+  padding-top: 0rem !important;
+}
+
+[data-testid="stSidebarUserContent"] {
+  padding-top: 0rem !important;
+  margin-top: -2rem !important;
+}
+
+[data-testid="stSidebarNav"] {
+  display: none !important;
+}
+
+.st-emotion-cache-10o480m h1,
+.st-emotion-cache-10o480m h2 {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+[data-testid="stMetric"] {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+[data-testid="stMetricLabel"] {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  text-transform: uppercase;
+  color: #999;
+  font-size: 0.8rem;
+  letter-spacing: 0.1rem;
+  margin-bottom: 0.1rem;
+  margin-top: 0.3rem;
+  font-weight: 600;
+}
+
+[data-testid="stMetricValue"] {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  font-size: 2rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+[data-testid="stMetricDelta"] {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+[data-testid="stMetricDelta"] svg {
+  display: none !important;
+}
+
+[data-testid="stMetricDeltaIcon"] {
+  display: none !important;
+}
+
+[data-testid="stMetricDelta"] > div {
+  margin-left: 0 !important;
+  display: flex;
+  justify-content: center;
+}
