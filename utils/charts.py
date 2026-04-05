@@ -31,12 +31,11 @@ class Charts(Figures):
 
     def table_display(self):
         with st.container(border=True):
-            st.subheader("Latest Titles", text_alignment="center")
             st.dataframe(
                 self.df.sort_values("release_year", ascending=False),
                 column_order=("title", "type", "release_year", "country", "genre", "rating", "duration"),
                 column_config={"release_year": st.column_config.NumberColumn("Year", format="%d")},
                 hide_index=True,
-                height=300,
-                width="stretch"
+                width="stretch",
+                height=361
             )
